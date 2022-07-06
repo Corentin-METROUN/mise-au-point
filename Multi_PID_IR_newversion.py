@@ -211,7 +211,7 @@ def Win_attribuer():
             Associate_point = [[] for _ in range(12)] # 6 IR emitters
             for i in range(len(IR_name)):
 
-                for j in range(len(layout)-2):
+                for j in range(len(layout)-1):
                 
                     IR_associate[j] = layout[j][1].get()
 
