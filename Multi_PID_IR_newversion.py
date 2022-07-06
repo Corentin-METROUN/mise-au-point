@@ -133,7 +133,7 @@ def Win_name():
         event, values = name.read(timeout = 10)
 
         if event == 'Valider':
-            Point_name[-1] = layout[0][1].get()
+            Point_name[-1] = layout[1][0].get()
             name.close()
             break
 
@@ -163,6 +163,7 @@ def mousePoints(event,x,y,flags,params):            # Mouse event fonction
     elif event == cv2.EVENT_RBUTTONDOWN:
         counter_read = 0
         Point_read = []
+        Point_name = []
 
 
 def cb_high_contrast_image():                    # Getter function for image acquisition, return uint8 640*480 array of high contrast image, see https://www.tinkerforge.com/en/doc/Software/Bricklets/ThermalImaging_Bricklet_Python.html#BrickletThermalImaging.set_image_transfer_config for more details
@@ -180,7 +181,7 @@ def cb_high_contrast_image():                    # Getter function for image acq
     for i in range(0,len(Point_read),2):
         if i+1 <= len(Point_read):
                                 # for loop for boxes drawing
-            try : cv2.putText(frame,Point_name[i]+' '+str(IR_associate[int(i/2)]),(Point_read[i], Point_read[i+1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (36,255,12), 2)
+            try : cv2.putText(frame,Point_name[int(i/2)]+' '+str(IR_associate[int(i/2)]),(Point_read[i], Point_read[i+1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (36,255,12), 2)
             except : None
             cv2.circle(frame, (Point_read[i], Point_read[i+1]), 3, (0, 255, 0), 2)
 
