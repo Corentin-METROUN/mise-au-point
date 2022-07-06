@@ -54,6 +54,7 @@ Pmax = 30 #alpha max
 # initialisation des variables de gestions des points de lecture et d'acquisition de température
 
 Point_read = []
+Point_name = []
 counter_read = 0
 
 """
@@ -63,6 +64,7 @@ les variables modifiables sont donc x et les noms des IR, ils est bien entendu p
 La variable layout ligne 168 doit correspondre au nom présent dans IR_name, étudiez la mise en forme et faites correspondre les noms à IR_name.
 """
 Associate_point = [[] for _ in range(12)] # 6 IR emitters
+IR_associate = []
 IR_name = [ "IR B1",
             "IR B2",
             "IR B3",
@@ -114,10 +116,38 @@ def temperature_image(image):                   # function that convert the ther
     return(reshaped_image)
 
 
+def Win_name():
+
+    global Point_name
+
+    layout = [
+              [sg.Text("Entrez nom point")],
+              [sg.In()],
+              [sg.Button("Valider")]
+             ]
+
+    name = sg.Window("IR set",layout)
+
+    while True :
+
+        event, values = name.read(timeout = 10)
+
+        if event == 'Valider':
+            Point_name[-1] = layout[0][1].get()
+            name.close()
+            break
+
+        if event == sg.WIN_CLOSED:
+            Win_name()
+            break
+
+
 def mousePoints(event,x,y,flags,params):            # Mouse event fonction
 
     global Point_read
     global counter_read
+    global Point_name
+    global IR_associate
 
     # Left button mouse click event -> Store x and y in Point_reg and then increase by 2 counter_reg
     if event == cv2.EVENT_LBUTTONDOWN :    
@@ -125,6 +155,9 @@ def mousePoints(event,x,y,flags,params):            # Mouse event fonction
         Point_read.append(x)
         Point_read.append(y)
         counter_read += 1
+        Point_name.append(counter_read)
+        IR_associate = [' ' for _ in range(counter_read)]
+        Win_name()
 
     # Right button mouse click event -> clear window of different points        
     elif event == cv2.EVENT_RBUTTONDOWN:
@@ -147,7 +180,7 @@ def cb_high_contrast_image():                    # Getter function for image acq
     for i in range(0,len(Point_read),2):
         if i+1 <= len(Point_read):
                                 # for loop for boxes drawing
-            try : cv2.putText(frame,str(int(i/2 + 1)),(Point_read[i], Point_read[i+1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (36,255,12), 2)
+            try : cv2.putText(frame,Point_name[i]+' '+str(IR_associate[int(i/2)]),(Point_read[i], Point_read[i+1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (36,255,12), 2)
             except : None
             cv2.circle(frame, (Point_read[i], Point_read[i+1]), 3, (0, 255, 0), 2)
 
@@ -159,6 +192,7 @@ def cb_high_contrast_image():                    # Getter function for image acq
 def Win_attribuer():
 
     global Associate_point
+    global IR_associate
 
     layout = [[sg.Text(str(i)), sg.Combo(IR_name+[''],readonly=True)] for i in range(counter_read)]+[
               [sg.Text("Un IR doit être associé à un unique point de régulation et réciproquement"),
@@ -174,19 +208,23 @@ def Win_attribuer():
         if event == "Valider":
 
             Associate_point = [[] for _ in range(12)] # 6 IR emitters
-         
             for i in range(len(IR_name)):
 
                 for j in range(len(layout)-2):
+                
+                    IR_associate[j] = layout[j][1].get()
 
                     if layout[j][1].get() == IR_name[i]:
                         Associate_point[i].append(j)
+
             attribution.close()
+            Win_element()
             break
 
         if event == sg.WIN_CLOSED:
             Win_attribuer()
             break
+
 
 def Win_element():
     layout = [
@@ -222,6 +260,7 @@ def Win_element():
     ti.set_resolution(1)
     elements.close()
     cv2.destroyAllWindows()
+
 
 def write_excel():                                  # data save to excel using Pandas
     now = datetime.datetime.now()
