@@ -195,7 +195,7 @@ def Win_attribuer():
     global Associate_point
     global IR_associate
 
-    layout = [[sg.Text(str(i)), sg.Combo(IR_name+[''],readonly=True)] for i in range(counter_read)]+[
+    layout = [[sg.Text(Point_name[i]), sg.Combo(IR_name+[''],default_value=IR_associate[i],readonly=True)] for i in range(counter_read)]+[
               [sg.Text("Un IR doit être associé à un unique point de régulation et réciproquement"),
                sg.Button("Valider")]
              ]
